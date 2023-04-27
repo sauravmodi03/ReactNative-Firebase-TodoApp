@@ -1,8 +1,9 @@
-import React from 'react';
-import { SafeAreaView, TextInput, View } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { styles } from '../components/Styles';
 import { auth, db, dbName } from '../../firebaseConfig';
-import { doc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 function AddTodo(props) {
 
@@ -12,15 +13,12 @@ function AddTodo(props) {
     const [completed, setCompleted] = useState(false);
 
     const newTodo = {
-        "task": app,
+        "task": task,
         "completed": completed
     }
 
-    useEffect(() => {
-    })
-
-
     const addNewDoc = async () => {
+        console.log("triggered");
         if (task == "") {
             Alert.alert('Missing data', 'Please fill all the fields');
         } else {
@@ -29,7 +27,12 @@ function AddTodo(props) {
                 todos: arrayUnion(newTodo)
             }).then((res) => {
                 console.log('Successfully added new doc', res);
-                props.navigation.navigate("Home");
+                Alert.alert('Todo', 'New Todo successfully added.', [
+                    {
+                        text: 'Ok',
+                        onPress: () => props.setModal(false)
+                    }
+                ]);
             })
                 .catch((err) => {
                     console.log('Error occured', err);
@@ -37,24 +40,39 @@ function AddTodo(props) {
         }
     }
 
-
     return (
-        <SafeAreaView style={styles.flexCenter}>
-            <View style={styles.header}>
-                <Text onPress={() => props.navigation.navigate("Home")} style={styles.font}>Back</Text>
-                <Text style={styles.font}>New Record</Text>
-                <Text onPress={addNewDoc} style={styles.font}>Save</Text>
-            </View>
-            <View>
+        <View style={st.modal}>
+            <View style={{}}>
+                <Text style={styles.font}>Todo:</Text>
                 <TextInput
                     style={styles.input}
-                    value={fname}
-                    placeholder='First Name'
-                    onChangeText={setFname}
+                    value={task}
+                    placeholder='Task'
+                    onChangeText={setTask}
                 />
             </View>
-        </SafeAreaView>
+            <View style={st.btnWrapper}>
+                <Text onPress={() => props.setModal(false)} style={styles.font}>Cancle</Text>
+                <Text onPress={() => addNewDoc()} style={styles.font}>Add</Text>
+            </View>
+        </View>
     );
 }
+
+const st = StyleSheet.create({
+    modal: {
+        alignSelf: 'center',
+        width: 400,
+        backgroundColor: 'dodgerblue',
+        borderRadius: 20,
+        marginTop: '60%',
+        justifyContent: 'center',
+        padding: 20,
+    },
+    btnWrapper: {
+        flexDirection: 'row',
+        justifyContent: 'space-around'
+    }
+})
 
 export default AddTodo;

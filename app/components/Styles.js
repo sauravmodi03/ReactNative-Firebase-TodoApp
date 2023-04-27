@@ -14,7 +14,6 @@ export const styles = StyleSheet.create({
     },
     font: {
         fontSize: 25
-
     },
     whiteFont: { color: 'white' },
     header: {
@@ -60,5 +59,13 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 5
+    },
+    footer: {
+        flexDirection: "row",
+        height: 50,
+        width: '100%',
+        alignItems: 'center',
+        padding: 10,
+        justifyContent: 'center'
     },
 });

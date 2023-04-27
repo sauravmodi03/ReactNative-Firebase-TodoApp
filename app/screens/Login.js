@@ -18,7 +18,7 @@ function Login({ navigation }) {
             signInWithEmailAndPassword(auth, username, password).then((ref) => {
                 console.log(ref);
                 setError("");
-                navigation.navigate("All Records");
+                navigation.navigate("HomeScreen");
             })
                 .catch((ref) => {
                     console.log(ref);

@@ -18,18 +18,19 @@ function Register({ navigation }) {
     const [passwordConf, setPasswordConf] = useState('');
 
     const user = {
-        "uid": "uid",
+        "uid": "",
         "fname": fname,
         "lname": lname,
         "email": email,
-        todos: []
+        "todos": []
     }
 
     const handleRegister = async (e) => {
         createUserWithEmailAndPassword(auth, email, password).then((res) => {
-            console.log(res);
-            addUser(res);
-            navigation.navigate("Drawer");
+            console.log(res.user.uid);
+            addUser(res).then((re) => {
+                navigation.navigate("HomeScreen");
+            });
         })
             .catch((error) => {
                 console.log(error);
@@ -38,6 +39,7 @@ function Register({ navigation }) {
 
     const addUser = async (res) => {
         user.uid = res.user.uid;
+        console.log(user);
         await setDoc(doc(db, dbName, user.uid), user).then((res) => {
             console.log(res);
         })

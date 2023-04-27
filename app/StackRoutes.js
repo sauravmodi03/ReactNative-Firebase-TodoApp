@@ -20,7 +20,7 @@ function StackRoutes(props) {
                 <Stack.Screen name='Welcome' component={Welcome} />
                 <Stack.Screen name='Login' component={Login} />
                 <Stack.Screen name='Register' component={Register} />
-                <Stack.Screen name='Drawer' component={DrawerRoutes} />
+                <Stack.Screen name='HomeScreen' component={DrawerRoutes} />
             </Stack.Navigator>
         </NavigationContainer>
     );

@@ -13,8 +13,8 @@ export const styles = StyleSheet.create({
         flex: 1
     },
     font: {
-        fontSize: 25,
-        color: 'white'
+        fontSize: 25
+
     },
     whiteFont: { color: 'white' },
     header: {

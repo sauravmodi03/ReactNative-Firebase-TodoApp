@@ -1,22 +1,23 @@
 import { DrawerContentScrollView, DrawerItemList, createDrawerNavigator } from '@react-navigation/drawer';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Home from './screens/Home';
 import Account from './screens/Account';
 import { Text } from 'react-native-elements';
 import { StyleSheet, View } from 'react-native';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../firebaseConfig';
+import { auth, db, dbName } from '../firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 function DrawerRoutes(props) {
 
     const Drawer = createDrawerNavigator();
     const [user] = useAuthState(auth);
+    const [userData, setUser] = useState({});
 
     const loadUserData = async () => {
         const ref = doc(db, dbName, user.uid);
         await getDoc(ref).then((res) => {
             setUser(res.data());
-            console.log(user);
         }).catch((err) => {
             console.log(err);
         });
@@ -30,8 +31,8 @@ function DrawerRoutes(props) {
         return (
             <DrawerContentScrollView {...props}>
                 <View style={st.headContainer}>
-                    <Text>Hello {user.fname}!</Text>
-                    <Text>{user.email}</Text>
+                    <Text>Hello {userData.fname}!</Text>
+                    <Text>{userData.email}</Text>
                 </View>
                 <DrawerItemList {...props} />
                 <Text>Logout</Text>

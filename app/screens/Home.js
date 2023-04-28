@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, View, TouchableOpacity, Text, Image, Modal } from 'react-native';
+import { SafeAreaView, StyleSheet, View, TouchableOpacity, Text, Image, Modal, Alert } from 'react-native';
 import { styles } from '../components/Styles';
 import { query, collection, getDocs, where, doc, updateDoc } from 'firebase/firestore';
 
@@ -7,6 +7,8 @@ import { db, auth, dbName } from '../../firebaseConfig';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import CheckBox from '@react-native-community/checkbox';
 import AddTodo from './AddTodo';
+import deleteicon from '../img/delete.png';
+import addIcon from '../img/add.png';
 
 function Home({ navigation }) {
 
@@ -25,34 +27,52 @@ function Home({ navigation }) {
     }
 
     const updateTodo = async (i, val) => {
-        console.log(todos[i].completed, val);
         todos[i].completed = val;
         const ref = doc(db, dbName, user.uid);
         await updateDoc(ref, {
             todos: todos
         });
-
-        // console.log(e.);
-        //todos[i].completed = val;
     }
 
-    const addNewTodo = () => {
-        setModal(true);
+    const removeTode = (i) => {
+        Alert.alert("Confirm", "Are you sure you want to remove item ? ",
+            [{
+                text: 'Yes',
+                onPress: () => deleteTodo(i)
+            },
+            {
+                text: 'No',
+                onPress: () => console.log("Do nothing")
+            }
+            ])
     }
 
+    const deleteTodo = async (i) => {
+        todos.splice(i, 1);
+        const ref = doc(db, dbName, user.uid);
+        await updateDoc(ref, {
+            todos: todos
+        });
+    }
 
     useEffect(() => {
         loadData();
-    }, [showModal]);
+    }, [showModal, todos]);
 
 
     return (
-        <SafeAreaView style={styles.flexContainer}>
+        <SafeAreaView style={[styles.flexContainer, st.background]}>
             <View style={[styles.flexContainer, st.wrapper]}>
                 {todos.map((todo, i) =>
                     <View key={i} style={st.todoWrapper}>
+                        <TouchableOpacity onPress={() => removeTode(i)}>
+                            <Image source={deleteicon} style={st.delIcon}></Image>
+                        </TouchableOpacity>
                         <View style={st.todoItem}><Text style={[styles.font]}>{todo.task}</Text></View>
                         <CheckBox
+                            onCheckColor='#05BFDB'
+                            onTintColor='#05BFDB'
+                            color
                             value={todo.completed}
                             onValueChange={() => updateTodo(i, !todo.completed)}
                         />
@@ -61,7 +81,9 @@ function Home({ navigation }) {
                 }
             </View>
             <View style={styles.footer}>
-                <Text style={styles.font} onPress={addNewTodo}>Add</Text>
+                <TouchableOpacity onPress={() => setModal(true)}>
+                    <Image source={addIcon} style={st.addIcon} />
+                </TouchableOpacity>
             </View>
             <Modal animationType="slide" visible={showModal} transparent={true}>
                 <AddTodo setModal={setModal} />
@@ -82,9 +104,20 @@ const st = StyleSheet.create({
     },
     todoItem: {
         width: 200,
-        backgroundColor: 'dodgerblue',
+        backgroundColor: '#05BFDB',
         borderRadius: 10,
         padding: 5
+    },
+    background: {
+        backgroundColor: '#0A4D68'
+    },
+    delIcon: {
+        width: 30,
+        height: 30
+    },
+    addIcon: {
+        width: 50,
+        height: 50
     }
 
 })

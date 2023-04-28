@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { styles } from '../components/Styles';
 import { auth, db, dbName } from '../../firebaseConfig';
 import { arrayUnion, doc, updateDoc } from 'firebase/firestore';
@@ -42,8 +42,8 @@ function AddTodo(props) {
 
     return (
         <View style={st.modal}>
-            <View style={{}}>
-                <Text style={styles.font}>Todo:</Text>
+            <View style={st.wrapper}>
+                <Text style={[styles.font, st.flexStart]}>Todo:</Text>
                 <TextInput
                     style={styles.input}
                     value={task}
@@ -62,17 +62,24 @@ function AddTodo(props) {
 const st = StyleSheet.create({
     modal: {
         alignSelf: 'center',
-        width: 400,
-        backgroundColor: 'dodgerblue',
+        width: 350,
+        backgroundColor: '#088395',
         borderRadius: 20,
         marginTop: '60%',
-        justifyContent: 'center',
         padding: 20,
     },
     btnWrapper: {
         flexDirection: 'row',
         justifyContent: 'space-around'
+    },
+    wrapper: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    flexStart: {
+        alignSelf: 'flex-start'
     }
+
 })
 
 export default AddTodo;

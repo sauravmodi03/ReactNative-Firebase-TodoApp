@@ -38,9 +38,10 @@ function Account(props) {
                 getDownloadURL(reference).then((res) => {
                     updateProfile(auth.currentUser, {
                         photoURL: res
+                    }).then((res) => {
+                        updateUser(auth.currentUser);
+                        console.log("photo url", user.photoURL);
                     });
-                    updateUser(auth.currentUser);
-                    console.log("photo url", user.photoURL);
                 });
             }).catch((err) => {
                 console.log(err);

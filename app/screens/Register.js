@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, SafeAreaView, TextInput, TouchableOpacity, Text, Button } from 'react-native';
 import { auth, db, dbName } from '../../firebaseConfig';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { styles } from '../components/Styles';
 
 import { setDoc, doc } from 'firebase/firestore';
@@ -28,6 +28,10 @@ function Register({ navigation }) {
     const handleRegister = async (e) => {
         createUserWithEmailAndPassword(auth, email, password).then((res) => {
             console.log(res.user.uid);
+            updateProfile(auth.currentUser, {
+                displayName: fname + " " + lname,
+                photoURL: 'https://firebasestorage.googleapis.com/v0/b/todo-bcea1.appspot.com/o/images%2Fdefault.jpg?alt=media&token=a3bf914a-9012-486c-8218-b128f3969ec0'
+            });
             addUser(res).then((re) => {
                 navigation.navigate("HomeScreen");
             });

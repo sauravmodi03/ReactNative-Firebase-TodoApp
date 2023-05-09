@@ -2,40 +2,40 @@ import { DrawerContentScrollView, DrawerItemList, createDrawerNavigator } from '
 import React, { useEffect, useState } from 'react';
 import Home from './screens/Home';
 import Account from './screens/Account';
-import { Text } from 'react-native-elements';
-import { StyleSheet, View } from 'react-native';
+import { Image, Text } from 'react-native-elements';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db, dbName } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 
-function DrawerRoutes(props) {
+function DrawerRoutes({ navigation }) {
 
     const Drawer = createDrawerNavigator();
-    const [user] = useAuthState(auth);
-    const [userData, setUser] = useState({});
+    const [user] = useState(auth.currentUser);
 
-    const loadUserData = async () => {
-        const ref = doc(db, dbName, user.uid);
-        await getDoc(ref).then((res) => {
-            setUser(res.data());
+    const singout = () => {
+        signOut(auth).then((res) => {
+            console.log("Successfully logged out..!!");
+            navigation.navigate('Welcome');
+
         }).catch((err) => {
-            console.log(err);
+            console.log("Wrror while logging out..!!");
         });
     }
-
-    useEffect(() => {
-        loadUserData();
-    }, []);
 
     const CustomDrawer = (props) => {
         return (
             <DrawerContentScrollView {...props}>
                 <View style={st.headContainer}>
-                    <Text>Hello {userData.fname}!</Text>
-                    <Text>{userData.email}</Text>
+                    <View>
+                        <Text>Hello {user.displayName}!</Text>
+                        <Text>{user.email}</Text>
+                    </View>
+                    <Image style={{ width: 70, height: 70, borderRadius: 35 }} source={{ uri: user.photoURL }} />
                 </View>
-                <DrawerItemList {...props} />
-                <Text>Logout</Text>
+                <DrawerItemList style={st.menulist} {...props} />
+                <TouchableOpacity onPress={singout} style={st.logout}><Text>Logout</Text></TouchableOpacity>
             </DrawerContentScrollView>
         );
     }
@@ -55,6 +55,17 @@ const st = StyleSheet.create({
         flex: 1,
         padding: 10,
         marginTop: 40,
-    }
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    menulist: {
+        flex: 1,
+        height: '100%'
+    },
+    logout: {
+        bottom: 0,
+        paddingLeft: 20,
+    },
 });
 export default DrawerRoutes;

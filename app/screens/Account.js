@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, SafeAreaView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, SafeAreaView, StyleSheet, View } from 'react-native';
 import { styles } from '../components/Styles'
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db, dbName, storage } from '../../firebaseConfig';
@@ -10,37 +10,60 @@ import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import * as ImagePicker from 'react-native-image-picker';
 import { ImagePickerIOS } from 'react-native';
+import { updateCurrentUser, updateProfile } from 'firebase/auth';
 
 function Account(props) {
 
-    const [user] = useAuthState(auth);
+    const [user, updateUser] = useState(auth.currentUser);
+
     const [userData, setUser] = useState({});
 
-    const [image, setImage] = useState(null);
+    const [imageURI, setURI] = useState('');
+    const [fileName, setFilename] = useState('');
 
     // const ImagePicker = require('react-native-image-picker');
 
-    const onSelectImagePress = () => launchImageLibrary({ mediaType: 'photo' }, onMediaSelect);
-
-    // const ref = storage.ref('images/' + user.uid + '/avatar.png');
-
-    const onMediaSelect = async (media) => {
+    const onSelectImagePress = () => launchImageLibrary({ mediaType: 'photo' }, async media => {
         if (!media.didCancel) {
-            console.log("Uploading");
-            const reference = ref(storage, 'images/' + media.assets[0].fileName);
-            uploadBytes(reference, media).then((res) => {
+            setFilename(media.assets[0].fileName)
+            setURI(media.assets[0].uri.replace('file://', ''));
+
+            console.log("Uploading", imageURI);
+            const reference = ref(storage, 'images/' + fileName);
+            const img = await fetch(imageURI);
+            const bytes = await img.blob();
+            uploadBytes(reference, bytes).then((res) => {
                 console.log(res);
                 Alert.alert("Image uploaded");
                 getDownloadURL(reference).then((res) => {
-                    console.log(res);
+                    updateProfile(auth.currentUser, {
+                        photoURL: res
+                    });
+                    updateUser(auth.currentUser);
+                    console.log("photo url", user.photoURL);
                 });
             }).catch((err) => {
                 console.log(err);
             });
-
-
         }
-    };
+    });
+
+    // const onSelectImagePress = () => launchCamera({ mediaType: 'photo' }, async media => {
+    //     if (!media.didCancel) {
+    //         console.log("Uploading", media);
+    //         const reference = ref(storage, 'images/' + media.assets[0].fileName);
+    //         uploadBytes(reference, media).then((res) => {
+    //             console.log(res);
+    //             Alert.alert("Image uploaded");
+    //             getDownloadURL(reference).then((res) => {
+    //                 console.log(res);
+    //             });
+    //         }).catch((err) => {
+    //             console.log(err);
+    //         });
+    //     }
+    // });
+
 
     const loadUserData = async () => {
         const ref = doc(db, dbName, user.uid);
@@ -54,12 +77,12 @@ function Account(props) {
 
     useEffect(() => {
         loadUserData();
-    }, []);
+    }, [user]);
 
     return (
         <SafeAreaView style={[styles.flexContainer, st.background]}>
+            <Image style={{ width: 100, height: 100, borderRadius: 50 }} source={{ uri: user.photoURL }} />
             <View style={st.infoWrapper}>
-                <Image source={'https://firebasestorage.googleapis.com/v0/b/todo-bcea1.appspot.com/o/images%2Favatar.png?alt=media&token=e8feb75a-4372-4378-8ab6-03a888d7058b'} />
                 <TouchableOpacity onPress={onSelectImagePress}><Text>Upload Pic</Text></TouchableOpacity>
             </View>
             <View style={st.infoWrapper}>
